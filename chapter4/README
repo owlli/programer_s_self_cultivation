@@ -1,0 +1,100 @@
+编译出来的ab程序在ubuntu18.04 64位下无法运行
+
+
+
+TinyHelloWorld.c的arm32位版本为:
+char *str = "Hello World!\n";  
+
+//ssize_t write(int fd, const void *buf, size_t count);
+
+void print()  
+{  
+    asm("mov    r2, #13 \n\t"  
+        "mov    r1, %0 \n\t"  
+        "mov    r0, #1 \n\t"  
+        "mov    r7, #4 \n\t"  
+        "svc    0x0 \n\t"  
+        ::"r"(str):);  
+}  
+
+void exit()  
+{  
+    asm("mov    r0, #0 \n\t"  
+        "mov    r7, #1 \n\t"  
+        "svc    0x0  \n\t"  
+    );  
+}  
+
+void nomain()
+{  
+    print();
+    exit();
+}
+
+Makefile为:
+.PHONY : all clean
+
+CC = arm-none-linux-gnueabi-gcc
+LD = arm-none-linux-gnueabi-ld
+DUMP = arm-none-linux-gnueabi-objdump
+
+CFLAGS = -nostdlib -fno-builtin
+LFLAGS = -static -e nomain
+
+tinyhelloworld: tinyhelloworld.c
+    $(CC) -c $(CFLAGS) $^
+    $(LD) $(LFLAGS) $@.o -o $@
+    $(DUMP) -d $@ > $@.dis
+
+clean:
+    rm -rf tinyhelloworld.o tinyhelloworld tinyhelloworld.dis
+
+arm64位版本为:
+
+char *str = "Hello World!\n";
+
+//ssize_t write(int fd, const void *buf, size_t count);
+
+void print()
+{
+    asm("mov    x2, #13 \n\t"
+        "mov    x1, %0 \n\t"
+            "mov    x0, #1 \n\t"
+            "mov    x8, #64 \n\t"
+            "svc    0x0 \n\t"
+            ::"r"(str):);
+}
+
+void exit()
+{
+    asm("mov    x0, #0 \n\t"
+        "mov    x8, #93 \n\t"
+        "svc    0x0  \n\t"
+    );
+}
+
+void nomain()
+{
+    print();
+    exit();
+}
+
+Makefile为:
+.PHONY : all clean
+
+CC = aarch64-linux-android-gcc
+LD = aarch64-linux-android-ld
+DUMP = aarch64-linux-android-objdump
+
+CFLAGS = -nostdlib -fno-builtin
+LFLAGS = -static -e nomain
+
+tinyhelloworld: tinyhelloworld.c
+    $(CC) -c $(CFLAGS) $^
+    $(LD) $(LFLAGS) $@.o -o $@
+    $(DUMP) -d $@ > $@.dis
+    cp $@ $@_64
+
+clean:
+    rm -rf tinyhelloworld.o tinyhelloworld tinyhelloworld.dis
+

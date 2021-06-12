@@ -1,0 +1,10 @@
+ubuntu18.04 64位下main程序无法执行,需要执行命令
+export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
+后才能执行
+
+ubuntu18.04 64位下RunSoSimple程序执行参数
+./RunSoSimple /lib/x86_64-linux-gnu/libm-2.27.so
+
+ubuntu18.04 64位下32位程序RunSo无法正常运行
+./RunSo /lib/x86_64-linux-gnu/libm-2.27.so sin d2.0d
+
